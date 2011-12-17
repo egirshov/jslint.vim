@@ -47,7 +47,9 @@ if !exists(":JSLintUpdate")
   command JSLintUpdate :call s:JSLintUpdate()
 endif
 if !exists(":JSLintToggle")
-  command JSLintToggle :let b:jslint_disabled = exists('b:jslint_disabled') ? b:jslint_disabled ? 0 : 1 : 1
+  command JSLintToggle exec ":let b:jslint_disabled = exists('b:jslint_disabled') ? b:jslint_disabled ? 0 : 1 : 1" |
+    \                  echo 'JSLint ' . ['enabled', 'disabled'][b:jslint_disabled] . '.' |
+    \                  exec ":JSLintUpdate"
 endif
 
 noremap <buffer><silent> dd dd:JSLintUpdate<CR>
@@ -129,6 +131,8 @@ endfunction
 
 function! s:JSLint()
   if exists("b:jslint_disabled") && b:jslint_disabled == 1
+    " Clear previous findings if jslint is disabled in a runtime
+    call s:JSLintClear()
     return
   endif
 
@@ -138,7 +142,6 @@ function! s:JSLint()
     if b:cleared == 0
       call s:JSLintClear()
     endif
-    let b:cleared = 1
   endif
 
   let b:matched = []
