@@ -78,6 +78,7 @@ var readSTDIN = (function() {
 readSTDIN(function(body) {
     var ok = JSLINT(body)
       , i
+      , j
       , error
       , errorType
       , nextError
@@ -85,19 +86,65 @@ readSTDIN(function(body) {
       , WARN = 'WARNING'
       , ERROR = 'ERROR';
 
-    if (!ok) {
+    var errors = [],
+        unused = [],
+        result = [];
+
+    if (!ok && JSLINT.errors) {
         errorCount = JSLINT.errors.length;
-        for (i = 0; i < errorCount; i += 1) {
-            error = JSLINT.errors[i];
+        JSLINT.errors.forEach(function (error, i, all) {
             errorType = WARN;
-            nextError = i < errorCount ? JSLINT.errors[i+1] : null;
+            nextError = all[i+1];
             if (error && error.reason && error.reason.match(/^Stopping/) === null) {
                 // If jslint stops next, this was an actual error
                 if (nextError && nextError.reason && nextError.reason.match(/^Stopping/) !== null) {
                     errorType = ERROR;
                 }
-                print([error.line, error.character, errorType, error.reason].join(":"));
+                errors.push([error.line, error.character, errorType, error.reason]);
             }
+        });
+    }
+
+    var data = JSLINT.data();
+    if (data && data.unused) {
+        data.unused.forEach(function (x, i, a) {
+            if (x && x.name) {
+                var errorReason = '';
+                if (x.name == 'extra_param') {
+                    errorReason = "Unused function argument in " + x['function'];
+                } else if (x.name === 'unused_variable') {
+                    errorReason = "Unused variable in " + x['function'];
+                }
+
+                if (errorReason) {
+                    unused.push([x.line, 1, WARN, errorReason]);
+                }
+            }
+        });
+    }
+
+    i = j = 0;
+    var next1 = null, next2 = null;
+    while (i < errors.length || j < unused.length) {
+        next1 = errors[i];
+        next2 = unused[j];
+        if (!next1) {
+            result.push(next2);
+            j += 1;
+        } else if (!next2) {
+            result.push(next1);
+            i += 1;
+        } else if (next1[0] <= next2[0]) {
+            result.push(next1);
+            i += 1;
+        } else {
+            result.push(next2);
+            j += 1;
         }
     }
+    result.forEach(function (x, i, a) {
+        if (x) {
+            print(x.join(":"));
+        }
+    });
 });
