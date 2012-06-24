@@ -175,6 +175,7 @@
 //     es5        true, if ES5 syntax should be allowed
 //     evil       true, if eval should be allowed
 //     forin      true, if for in statements need not filter
+//     forvar     true, if for (var ...) statemetns should be allowed
 //     fragment   true, if HTML fragments should be allowed
 //     indent     the indentation factor
 //     maxerr     the maximum number of errors to allow
@@ -259,7 +260,7 @@
     expected_type_a, f, fieldset, figure, filter, first, flag, float, floor,
     font, 'font-family', 'font-size', 'font-size-adjust', 'font-stretch',
     'font-style', 'font-variant', 'font-weight', footer, forEach, for_if, forin,
-    form, fragment, frame, frameset, from, fromCharCode, fud, funct, function,
+    form, forvar, fragment, frame, frameset, from, fromCharCode, fud, funct, function,
     function_block, function_eval, function_loop, function_statement,
     function_strict, functions, global, globals, h1, h2, h3, h4, h5, h6,
     handheld, hasOwnProperty, head, header, height, hgroup, hr,
@@ -350,6 +351,7 @@ var JSLINT = (function () {
             es5       : true,
             evil      : true,
             forin     : true,
+            forvar    : true,
             fragment  : true,
             indent    :   10,
             maxerr    : 1000,
@@ -2097,6 +2099,7 @@ klass:              do {
                 option.devel   =
                 option.evil    =
                 option.forin   =
+                option.forvar  =
                 option.newcap  =
                 option.nomen   =
                 option.on      =
@@ -4346,7 +4349,14 @@ klass:              do {
             spaces(this, paren);
             no_space();
             if (next_token.id === 'var') {
-                stop('move_var');
+                // stop('move_var');
+                if (option.forvar) {
+                    advance();
+                    add_label(next_token, 'unused');
+                } else {
+                    warn(bundle.move_var);
+                }
+
             }
             edge();
             if (peek(0).id === 'in') {
