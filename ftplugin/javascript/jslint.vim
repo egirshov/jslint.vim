@@ -15,9 +15,9 @@ endif
 
 let s:install_dir = expand('<sfile>:p:h')
 
-au BufLeave <buffer> call s:JSLintClear()
+"au BufLeave <buffer> call s:JSLintClear()
 
-au BufEnter <buffer> call s:JSLint()
+"au BufEnter <buffer> call s:JSLint()
 au InsertLeave <buffer> call s:JSLint()
 "au InsertEnter <buffer> call s:JSLint()
 au BufWritePost <buffer> call s:JSLint()
@@ -177,7 +177,7 @@ function! s:JSLint()
     let &shell = old_shell
   endif
   if v:shell_error
-    echoerr b:jslint_output
+    "echoerr b:jslint_output
     echoerr 'could not invoke JSLint!'
     let b:jslint_disabled = 1
   end
@@ -211,7 +211,7 @@ function! s:JSLint()
         " Store the error for the quickfix window
         let l:qf_item = {}
         let l:qf_item.bufnr = bufnr('%')
-        let l:qf_item.filename = expand('%')
+        let l:qf_item.filename = expand('%:p')
         let l:qf_item.lnum = l:line
         let l:qf_item.text = l:errorMessage
         let l:qf_item.type = l:errorType
