@@ -76,7 +76,19 @@ var readSTDIN = (function() {
 })();
 
 readSTDIN(function(body) {
-    var ok = JSLINT(body)
+    var options = {
+        eqeq: true,
+        node: true,
+        sloppy: true, // only because of global 'use strict'?
+        indent: 4,
+        vars: true,
+        forin: true, // non-filtered for .. in loops
+        forvar: true,
+        maxerr: 1000,
+        es5: true,
+        white: true,
+    };
+    var ok = JSLINT(body, options)
       , i
       , j
       , error
