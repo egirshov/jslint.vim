@@ -179,6 +179,7 @@
 //     indent     the indentation factor
 //     maxerr     the maximum number of errors to allow
 //     maxlen     the maximum length of a source line
+//     mocha      true, if Mocha globals should be predefined
 //     newcap     true, if constructor names capitalization is ignored
 //     node       true, if Node.js globals should be predefined
 //     nomen      true, if names may have dangling _
@@ -273,7 +274,7 @@
     'max-height', 'max-width', maxerr, maxlen, menu, message, meta, meter,
     'min-height', 'min-width', missing_a, missing_a_after_b, missing_option,
     missing_property, missing_space_a_b, missing_url, missing_use_strict, mixed,
-    mm, mode, move_invocation, move_var, n, name, name_function, nav,
+    mm, mocha, mode, move_invocation, move_var, n, name, name_function, nav,
     nested_comment, newcap, node, noframes, nomen, noscript, not,
     not_a_constructor, not_a_defined, not_a_function, not_a_label, not_a_scope,
     not_greater, nud, number, object, octal_a, ol, on, opacity, open, optgroup,
@@ -847,6 +848,10 @@ var JSLINT = (function () {
         lex,            // the tokenizer
         lines,
         lookahead,
+        mocha = array_to_object([
+            'suite', 'suiteSetup', 'suiteTeardown',
+            'test', 'setup', 'teardown',
+            'skip_suite', 'skip_test'], true),
         node = array_to_object([
             'Buffer', 'clearInterval', 'clearTimeout', 'console', 'exports',
             'global', 'module', 'process', 'querystring', 'require',
@@ -1080,6 +1085,10 @@ var JSLINT = (function () {
                 add_to_predefined(node);
                 option.node = false;
                 node_js = true;
+            }
+            if (option.mocha) {
+                add_to_predefined(mocha);
+                option.mocha = false;
             }
         }
     }
